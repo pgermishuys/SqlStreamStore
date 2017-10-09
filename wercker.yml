@@ -1,0 +1,15 @@
+build:
+  services:
+    - id: microsoft/mssql-server-linux
+      env:
+        ACCEPT_EULA: Y
+        SA_PASSWORD: SqlStreamSt0re
+
+  box:
+    id: pgermishuys/sqlstreamstoretest:latest
+  steps:
+    - script:
+        name: Build
+        code: |
+            ./build.sh 2>&1 | tee build-results.out
+            ./inspect_test_results.sh

@@ -7,6 +7,11 @@ var sourceDir       = Directory("./src");
 var solution        = "./src/SqlStreamStore.sln";
 var buildNumber     = string.IsNullOrWhiteSpace(EnvironmentVariable("BUILD_NUMBER")) ? "0" : EnvironmentVariable("BUILD_NUMBER");
 
+var projectSqlStreamStore = "./src/SqlStreamStore/SqlStreamStore.csproj";
+var projectSqlStreamStoreTests = "./src/SqlStreamStore.Tests/SqlStreamStore.Tests.csproj";
+var projectSqlStreamStoreMsSql = "./src/SqlStreamStore.MsSql/SqlStreamStore.MsSql.csproj";
+var projectSqlStreamStoreMsSqlTests = "./src/SqlStreamStore.MsSql.Tests/SqlStreamStore.MsSql.Tests.csproj";
+
 Task("Clean")
     .Does(() =>
 {
@@ -24,12 +29,24 @@ Task("Build")
     .IsDependentOn("RestorePackages")
     .Does(() =>
 {
-	var settings = new DotNetCoreBuildSettings
-	{
-		Configuration = configuration
-	};
+    var settings = new DotNetCoreBuildSettings
+    {
+        Configuration = configuration
+    };
 
-	DotNetCoreBuild(solution, settings);
+    if (Context.Environment.Platform.IsUnix())
+    {
+        Warning("Full solution building is not possible on Unix based systems. Building individual projects instead.");
+
+        DotNetCoreBuild(projectSqlStreamStore, settings);
+        DotNetCoreBuild(projectSqlStreamStoreMsSql, settings);
+        DotNetCoreBuild(projectSqlStreamStoreTests, settings);
+        DotNetCoreBuild(projectSqlStreamStoreMsSqlTests, settings);
+    }
+    else
+    {
+        DotNetCoreBuild(solution, settings);
+    }
 });
 
 Task("RunTests")
@@ -37,7 +54,6 @@ Task("RunTests")
     .Does(() =>
 {
     var testProjects = new string[] { "SqlStreamStore.Tests", "SqlStreamStore.MsSql.Tests" };
-
 
     var processes = testProjects.Select(TestAssembly).ToArray();
 
