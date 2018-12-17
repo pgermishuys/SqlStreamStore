@@ -46,6 +46,7 @@ namespace SqlStreamStore
             int expectedStreamMetadataVersion = ExpectedVersion.Any,
             int? maxAge = null,
             int? maxCount = null,
+            int? truncateBefore = null,
             string metadataJson = null,
             CancellationToken cancellationToken = default)
         {
@@ -77,7 +78,8 @@ namespace SqlStreamStore
             var metadata = new Dictionary<string, object>
             {
                 ["maxAge"] = maxAge,
-                ["maxCount"] = maxCount
+                ["maxCount"] = maxCount,
+                ["truncateBefore"] = truncateBefore
             };
 
             if(!string.IsNullOrEmpty(metadataJson))

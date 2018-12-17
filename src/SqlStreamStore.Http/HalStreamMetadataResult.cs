@@ -9,6 +9,7 @@
         public string MetadataJson { get; set; }
         public int? MaxCount { get; set; }
         public int? MaxAge { get; set; }
+        public int? TruncateBefore { get; set; }
 
         public static implicit operator StreamMetadataResult(HalStreamMetadataResult result)
             => new StreamMetadataResult(
@@ -16,6 +17,7 @@
                 result.MetadataStreamVersion,
                 result.MaxAge,
                 result.MaxCount,
+                result.TruncateBefore,
                 result.MetadataJson);
     }
 }

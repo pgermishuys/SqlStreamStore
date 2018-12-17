@@ -127,6 +127,7 @@
                     var lastStreamPosition = reader.GetInt64(1);
                     var maxAge = reader.GetNullableInt32(2);
                     var maxCount = reader.GetNullableInt32(3);
+                    var truncateBefore = reader.GetNullableInt32(4);
 
                     await reader.NextResultAsync(cancellationToken).NotOnCapturedContext();
                     var messages = new List<(StreamMessage, int?)>();
@@ -179,7 +180,7 @@
                     }
 
                     var filteredMessages = FilterExpired(messages);
-                    var meta = new StreamMeta(maxAge, maxCount);
+                    var meta = new StreamMeta(maxAge, maxCount, truncateBefore);
                     return (new ReadStreamPage(
                         sqlStreamId.IdOriginal,
                         PageReadStatus.Success,

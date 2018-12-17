@@ -502,17 +502,20 @@
 
         internal class StreamMeta
         {
-            public static readonly StreamMeta None = new StreamMeta(null, null);
+            public static readonly StreamMeta None = new StreamMeta(null, null, null);
 
-            public StreamMeta(int? maxCount, int? maxAge)
+            public StreamMeta(int? maxCount, int? maxAge, int? truncateBefore)
             {
                 MaxCount = maxCount;
                 MaxAge = maxAge;
+                TruncateBefore = truncateBefore;
             }
 
             public int? MaxCount { get; }
 
             public int? MaxAge { get; }
+            
+            public int? TruncateBefore { get; set; }
         }
     }
 }

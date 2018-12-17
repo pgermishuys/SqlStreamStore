@@ -204,6 +204,7 @@ namespace SqlStreamStore
                     eventsPage.LastStreamVersion,
                     metadataMessage.MaxAge,
                     metadataMessage.MaxCount,
+                    metadataMessage.TruncateBefore,
                     metadataMessage.MetaJson);
             }
         }
@@ -213,6 +214,7 @@ namespace SqlStreamStore
             int expectedStreamMetadataVersion,
             int? maxAge,
             int? maxCount,
+            int? truncateBefore,
             string metadataJson,
             CancellationToken cancellationToken)
         {
@@ -225,6 +227,7 @@ namespace SqlStreamStore
                     StreamId = streamId,
                     MaxAge = maxAge,
                     MaxCount = maxCount,
+                    TruncateBefore = truncateBefore,
                     MetaJson = metadataJson
                 };
                 var json = SimpleJson.SerializeObject(metadataMessage);

@@ -130,14 +130,19 @@ namespace SqlStreamStore.Infrastructure
             GuardAgainstDisposed();
             cancellationToken.ThrowIfCancellationRequested();
 
+            var metadata = await GetStreamMetadata(streamId, cancellationToken);
+            int minVersion = fromVersionInclusive;
+            if(metadata.TruncateBefore.HasValue)
+                minVersion = Math.Max(minVersion, metadata.TruncateBefore.Value);
+
             if (Logger.IsDebugEnabled())
             {
                 Logger.DebugFormat("ReadStreamForwards {streamId} from version {fromVersionInclusive} with max count " +
-                                   "{maxCount}.", streamId, fromVersionInclusive, maxCount);
+                                   "{maxCount}.", streamId, minVersion, maxCount);
             }
 
             ReadNextStreamPage readNext = (nextVersion, ct) => ReadStreamForwards(streamId, nextVersion, maxCount, prefetchJsonData, ct);
-            var page = await ReadStreamForwardsInternal(streamId, fromVersionInclusive, maxCount, prefetchJsonData,
+            var page = await ReadStreamForwardsInternal(streamId, minVersion, maxCount, prefetchJsonData,
                 readNext, cancellationToken);
             return await FilterExpired(page, readNext, cancellationToken);
         }
@@ -154,6 +159,8 @@ namespace SqlStreamStore.Infrastructure
 
             GuardAgainstDisposed();
             cancellationToken.ThrowIfCancellationRequested();
+            
+            var metadata = await GetStreamMetadata(streamId, cancellationToken);
 
             if (Logger.IsDebugEnabled())
             {
@@ -164,7 +171,8 @@ namespace SqlStreamStore.Infrastructure
                 (nextVersion, ct) => ReadStreamBackwards(streamId, nextVersion, maxCount, prefetchJsonData, ct);
             var page = await ReadStreamBackwardsInternal(streamId, fromVersionInclusive, maxCount, prefetchJsonData, readNext,
                 cancellationToken);
-            return await FilterExpired(page, readNext, cancellationToken);
+            var expired = await FilterExpired(page, readNext, cancellationToken);
+            return FilterTruncateBefore(expired, readNext, metadata.TruncateBefore);
         }
 
         public IStreamSubscription SubscribeToStream(
@@ -358,6 +366,37 @@ namespace SqlStreamStore.Infrastructure
             var reloadedPage = await ReadAllForwardsInternal(fromPositionInclusive, maxCount, prefetch, readNext, cancellationToken)
                 .NotOnCapturedContext();
             return await FilterExpired(reloadedPage, readNext, cancellationToken).NotOnCapturedContext();
+        }
+        
+        private ReadStreamPage FilterTruncateBefore(
+            ReadStreamPage page,
+            ReadNextStreamPage readNext,
+            int? truncateBefore)
+        {
+            if(page.StreamId.StartsWith("$") || !truncateBefore.HasValue)
+            {
+                return page;
+            }
+
+            var valid = new List<StreamMessage>();
+            foreach(var message in page.Messages)
+            {
+                if(message.StreamVersion >= truncateBefore.Value)
+                {
+                    valid.Add(message);
+                }
+            }
+            return new ReadStreamPage(
+                page.StreamId,
+                page.Status,
+                page.FromStreamVersion,
+                page.NextStreamVersion,
+                page.LastStreamVersion, 
+                page.LastStreamPosition,
+                page.ReadDirection,
+                page.IsEnd,
+                readNext,
+                valid.ToArray());
         }
 
         private async Task<ReadStreamPage> FilterExpired(

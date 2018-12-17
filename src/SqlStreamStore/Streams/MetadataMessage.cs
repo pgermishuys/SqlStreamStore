@@ -19,6 +19,11 @@ namespace SqlStreamStore.Streams
         /// The max count of message retained in the stream.
         /// </summary>
         public int? MaxCount;
+        
+        /// <summary>
+        /// The point at which any messages prior to this position will get ignored.
+        /// </summary>
+        public int? TruncateBefore { get; set; }
 
         /// <summary>
         /// Custom Json 

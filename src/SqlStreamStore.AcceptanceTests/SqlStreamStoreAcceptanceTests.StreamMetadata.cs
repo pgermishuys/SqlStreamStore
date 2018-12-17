@@ -153,9 +153,9 @@
                 {
                     const string streamId = "stream-1";
                     await store
-                        .SetStreamMetadata(streamId, maxCount: 2, maxAge: 30, metadataJson: "meta");
+                        .SetStreamMetadata(streamId, maxCount: 2, maxAge: 30, truncateBefore: 2, metadataJson: "meta");
                     await store
-                        .SetStreamMetadata(streamId, maxCount: 2, maxAge: 30, metadataJson: "meta");
+                        .SetStreamMetadata(streamId, maxCount: 2, maxAge: 30, truncateBefore: 2, metadataJson: "meta");
 
                     var metadata = await store.GetStreamMetadata(streamId);
 
@@ -180,6 +180,7 @@
                     metadata.MetadataStreamVersion.ShouldBe(0);
                     metadata.MaxAge.ShouldBe(30);
                     metadata.MaxCount.ShouldBe(2);
+                    metadata.TruncateBefore.ShouldBe(2);
                     metadata.MetadataJson.ShouldBeNull();
                 }
             }

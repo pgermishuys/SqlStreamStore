@@ -118,6 +118,7 @@
             int expectedStreamMetadataVersion = ExpectedVersion.Any,
             int? maxAge = null,
             int? maxCount = null,
+            int? truncateBefore = null,
             string metadataJson = null,
             CancellationToken cancellationToken = default);
     }

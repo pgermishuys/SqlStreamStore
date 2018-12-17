@@ -104,6 +104,7 @@ namespace SqlStreamStore.Infrastructure
             int expectedStreamMetadataVersion = ExpectedVersion.Any,
             int? maxAge = null,
             int? maxCount = null,
+            int? truncateBefore = null,
             string metadataJson = null,
             CancellationToken cancellationToken = default)
         {
@@ -119,8 +120,8 @@ namespace SqlStreamStore.Infrastructure
             if (Logger.IsDebugEnabled())
             {
                 Logger.DebugFormat("SetStreamMetadata {streamId} with expected metadata version " +
-                                   "{expectedStreamMetadataVersion}, max age {maxAge} and max count {maxCount}.",
-                                   streamId, expectedStreamMetadataVersion, maxAge, maxCount);
+                                   "{expectedStreamMetadataVersion}, max age {maxAge}, max count {maxCount} and truncate before {truncateBefore}.",
+                                   streamId, expectedStreamMetadataVersion, maxAge, maxCount, truncateBefore);
             }
 
             return SetStreamMetadataInternal(
@@ -128,6 +129,7 @@ namespace SqlStreamStore.Infrastructure
                 expectedStreamMetadataVersion,
                 maxAge,
                 maxCount,
+                truncateBefore,
                 metadataJson,
                 cancellationToken);
         }
@@ -165,6 +167,7 @@ namespace SqlStreamStore.Infrastructure
            int expectedStreamMetadataVersion,
            int? maxAge,
            int? maxCount,
+           int? truncateBefore,
            string metadataJson,
            CancellationToken cancellationToken);
 

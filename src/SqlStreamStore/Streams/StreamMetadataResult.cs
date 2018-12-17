@@ -27,6 +27,11 @@ namespace SqlStreamStore.Streams
         public readonly int? MaxCount;
 
         /// <summary>
+        ///     The point at which to start reading events from.
+        /// </summary>
+        public readonly int? TruncateBefore;
+
+        /// <summary>
         ///     Custom metadata serialized as JSON.
         /// </summary>
         public readonly string MetadataJson;
@@ -38,18 +43,21 @@ namespace SqlStreamStore.Streams
         /// <param name="metadataStreamVersion">The verson of the metadata stream.</param>
         /// <param name="maxAge">The max age of messages in the stream.</param>
         /// <param name="maxCount">The max count of message in the stream.</param>
+        /// <param name="truncateBefore">The point at which to start reading events from.</param>
         /// <param name="metadataJson">Custom metadata serialized as JSON.</param>
         public StreamMetadataResult(
             string streamId,
             int metadataStreamVersion,
             int? maxAge = null,
             int? maxCount = null,
+            int? truncateBefore = null,
             string metadataJson = null)
         {
             StreamId = streamId;
             MetadataStreamVersion = metadataStreamVersion;
             MaxAge = maxAge;
             MaxCount = maxCount;
+            TruncateBefore = truncateBefore;
             MetadataJson = metadataJson;
         }
     }

@@ -207,5 +207,51 @@ namespace SqlStreamStore
                 }
             }
         }
+
+        [Fact, Trait("Category", "StreamMetadata")]
+        public async Task
+            When_streams_has_been_soft_deleted_and_read_forwards_then_should_not_read_before()
+        {
+            using (var fixture = GetFixture())
+            {
+                using (var store = await fixture.GetStreamStore())
+                {
+                    string streamId = "stream-1";
+                    await store
+                        .AppendToStream(streamId, ExpectedVersion.NoStream, CreateNewStreamMessages(1, 2, 3, 4));
+                    await store
+                        .AppendToStream(streamId, ExpectedVersion.Any, CreateNewStreamMessages(5, 6, 7, 8));
+                    await store
+                        .SetStreamMetadata(streamId, truncateBefore: 2, metadataJson: "meta");
+
+                    var streamMessagesPage = await store.ReadStreamForwards(streamId, StreamVersion.Start, 20);
+
+                    streamMessagesPage.Messages.Length.ShouldBe(6);
+                }
+            }
+        }
+        
+        [Fact, Trait("Category", "StreamMetadata")]
+        public async Task
+            When_streams_has_been_soft_deleted_and_read_backwards_then_should_not_read_before()
+        {
+            using (var fixture = GetFixture())
+            {
+                using (var store = await fixture.GetStreamStore())
+                {
+                    string streamId = "stream-1";
+                    await store
+                        .AppendToStream(streamId, ExpectedVersion.NoStream, CreateNewStreamMessages(1, 2, 3, 4));
+                    await store
+                        .AppendToStream(streamId, ExpectedVersion.Any, CreateNewStreamMessages(5, 6, 7, 8));
+                    await store
+                        .SetStreamMetadata(streamId, truncateBefore: 2, metadataJson: "meta");
+
+                    var streamMessagesPage = await store.ReadStreamBackwards(streamId, StreamVersion.End, 20);
+
+                    streamMessagesPage.Messages.Length.ShouldBe(6);
+                }
+            }
+        }
     }
 }

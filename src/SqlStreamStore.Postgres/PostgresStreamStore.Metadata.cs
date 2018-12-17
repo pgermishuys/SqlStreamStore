@@ -49,6 +49,7 @@
                 page.LastStreamVersion,
                 metadataMessage.MaxAge,
                 metadataMessage.MaxCount,
+                metadataMessage.TruncateBefore,
                 metadataMessage.MetaJson);
         }
 
@@ -57,6 +58,7 @@
             int expectedStreamMetadataVersion,
             int? maxAge,
             int? maxCount,
+            int? truncateBefore,
             string metadataJson,
             CancellationToken cancellationToken)
         {
@@ -67,6 +69,7 @@
                 StreamId = streamId,
                 MaxAge = maxAge,
                 MaxCount = maxCount,
+                TruncateBefore = truncateBefore,
                 MetaJson = metadataJson
             };
 
